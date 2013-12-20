@@ -67,7 +67,6 @@ StateManager.prototype._step = function() {
 }
 
 StateManager.prototype._switch_state = function(new_state) {
-  console.log(new_state);
   if(this._current_state === new_state) {
     return;
   }
@@ -75,6 +74,7 @@ StateManager.prototype._switch_state = function(new_state) {
   this._current_state = new_state;
   var transition_sound = this._states[this._current_state].transition_sound;
   
+  document.querySelector('#current_state').innerHTML = this._current_state;
   var player = document.querySelector('#transition_player');
   player.src = transition_sound;
   player.play();
