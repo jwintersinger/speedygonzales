@@ -15,14 +15,18 @@ StateManager.prototype.add_transition_prob = function(from_state, to_state, tran
   this._states[from_state].trans_probs[to_state] = transition_prob;
 };
 
-StateManager.prototype.run = function(start_state) {
+StateManager.prototype.start = function(start_state) {
   this._switch_state(start_state);
 
   var self = this;
-  setInterval(function() {
+  this._interval_id = setInterval(function() {
     self._step();
   }, this._interval_period);
 };
+
+StateManager.prototype.stop = function() {
+  clearInterval(this._interval_id);
+}
 
 StateManager.prototype._load_audio = function() {
   for(var state in this._states) {
@@ -42,19 +46,19 @@ StateManager.prototype._choose_next_state = function(possible_next_states) {
   }
 
   // Couldn't find next state
-  console.log("Couldn't find next state");
+  console.log(["Couldn't find next state", rand, cum_prob, possible_next_states]);
   return Object.keys(possible_next_states)[0];
 }
 
 StateManager.prototype._step = function() {
   var possible_next_states = this._states[this._current_state].trans_probs;
 
-  var prob_sum = Object.keys(possible_next_states).map(function(state) {
-    return possible_next_states[state];
-  }).reduce(function(prev, current) {
-    return prev + current;
-  });
-  if(prob_sum < 1) {
+  if(typeof possible_next_states[this._current_state] === 'undefined') {
+    var prob_sum = Object.keys(possible_next_states).map(function(state) {
+      return possible_next_states[state];
+    }).reduce(function(prev, current) {
+      return prev + current;
+    });
     possible_next_states[this._current_state] = 1 - prob_sum;
   }
 
@@ -122,10 +126,14 @@ function create_state_manager() {
 
 function run() {
   var sm = create_state_manager();
-  sm.run('1');
-  document.querySelector('#load_audio').addEventListener('click', function() {
-    document.querySelector('#transition_player').play();
+  document.querySelector('#start').addEventListener('click', function() {
+    document.querySelector('#transition_player').load();
+    sm.start('1');
   });
+  document.querySelector('#stop').addEventListener('click', function() {
+    sm.stop();
+  });
+  document.querySelector('#music_player').src = PRIVATE_URLS.di_fm_electro_house;
 }
 
 run();

@@ -1,0 +1,3 @@
+PRIVATE_URLS = {
+  'di_fm_electro_house': 'http://prem1.di.fm:80/electrohouse_hi?xxxxxxxxxxxxxxxxxx',
+}
