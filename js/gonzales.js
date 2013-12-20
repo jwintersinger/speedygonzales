@@ -1,0 +1,131 @@
+function StateManager() {
+  this._states = {};
+  this._current_state = null;
+  this._interval_period = 30000;
+}
+
+StateManager.prototype.add_state = function(state_name, transition_sound) {
+  this._states[state_name] = {
+    transition_sound: transition_sound,
+    trans_probs: {}
+  };
+};
+
+StateManager.prototype.add_transition_prob = function(from_state, to_state, transition_prob) {
+  this._states[from_state].trans_probs[to_state] = transition_prob;
+};
+
+StateManager.prototype.run = function(start_state) {
+  this._switch_state(start_state);
+
+  var self = this;
+  setInterval(function() {
+    self._step();
+  }, this._interval_period);
+};
+
+StateManager.prototype._load_audio = function() {
+  for(var state in this._states) {
+    var sound = this._states[state].transition_sound;
+  }
+}
+
+StateManager.prototype._choose_next_state = function(possible_next_states) {
+  var rand = Math.random();
+
+  var cum_prob = 0;
+  for(var candidate in possible_next_states) {
+    cum_prob += possible_next_states[candidate];
+    if(rand < cum_prob) {
+      return candidate;
+    }
+  }
+
+  // Couldn't find next state
+  console.log("Couldn't find next state");
+  return Object.keys(possible_next_states)[0];
+}
+
+StateManager.prototype._step = function() {
+  var possible_next_states = this._states[this._current_state].trans_probs;
+
+  var prob_sum = Object.keys(possible_next_states).map(function(state) {
+    return possible_next_states[state];
+  }).reduce(function(prev, current) {
+    return prev + current;
+  });
+  if(prob_sum < 1) {
+    possible_next_states[this._current_state] = 1 - prob_sum;
+  }
+
+  var next_state = this._choose_next_state(possible_next_states);
+  this._switch_state(next_state);
+}
+
+StateManager.prototype._switch_state = function(new_state) {
+  console.log(new_state);
+  if(this._current_state === new_state) {
+    return;
+  }
+
+  this._current_state = new_state;
+  var transition_sound = this._states[this._current_state].transition_sound;
+  
+  var player = document.querySelector('#transition_player');
+  player.src = transition_sound;
+  player.play();
+}
+
+function create_state_manager() {
+  var sm = new StateManager();
+
+  // Original audio source: freesound.org
+  // Counting:      82986__corsica-s__countdown.wav
+  // Shot:          47252__nthompson__rocketexpl.wav
+  // Brake screech: 71741__audible-edge__nissan-maxima-handbrake-turn-04-25-2009.wav
+  sm.add_state('1', 'audio/count_1.mp3');
+  sm.add_state('2', 'audio/count_2.mp3');
+  sm.add_state('3', 'audio/count_3.mp3');
+  sm.add_state('4', 'audio/count_4.mp3');
+  sm.add_state('5', 'audio/count_5.mp3');
+  sm.add_state('6', 'audio/count_6.mp3');
+  sm.add_state('7', 'audio/count_7.mp3');
+  sm.add_state('8', 'audio/count_8.mp3');
+  sm.add_state('9', 'audio/count_9.mp3');
+  sm.add_state('10', 'audio/count_10.mp3');
+  sm.add_state('attack',  'audio/shot.mp3');
+  sm.add_state('recover', 'audio/brake_screech.mp3');
+
+  for(var i = 2; i < 7; i++) {
+    sm.add_transition_prob(i.toString(), (i + 1).toString(), 0.8);
+    sm.add_transition_prob(i.toString(), (i - 1).toString(), 0.1);
+  }
+
+  for(var i = 1; i <= 10; i++) {
+    sm.add_transition_prob(i.toString(), 'attack', 0.08);
+  }
+  sm.add_transition_prob('attack', 'recover', 0.5);
+  sm.add_transition_prob('recover', '3', 0.5);
+  sm.add_transition_prob('recover', '4', 0.5);
+
+  sm.add_transition_prob('1', '2', 0.9);
+  sm.add_transition_prob('7', '6', 0.05);
+  sm.add_transition_prob('7', '8', 0.1);
+  sm.add_transition_prob('7', '9', 0.05);
+  sm.add_transition_prob('8', '9', 0.1);
+  sm.add_transition_prob('8', '7', 0.1);
+  sm.add_transition_prob('9', '4', 0.3);
+  sm.add_transition_prob('10', '3', 0.5);
+
+  return sm;
+}
+
+function run() {
+  var sm = create_state_manager();
+  sm.run('1');
+  document.querySelector('#load_audio').addEventListener('click', function() {
+    document.querySelector('#transition_player').play();
+  });
+}
+
+run();
