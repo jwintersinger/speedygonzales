@@ -3,15 +3,28 @@
   <head>
     <meta charset="UTF-8" />
     <title>Speedy Gonzales</title>
+
+    <link href="//netdna.bootstrapcdn.com/bootstrap/3.0.3/css/bootstrap.min.css" rel="stylesheet">
   </head>
   <body>
     <audio id="music_player" preload="none" controls></audio>
     <audio id="transition_player"></audio>
 
-    <button id="start">Start</button>
-    <button id="stop">Stop</button>
+    <button id="start" class="btn btn-lg btn-primary">Start</button>
+    <button id="stop" class="btn btn-lg btn-danger">Stop</button>
+
+    <!--<div class="list-group">
+      <a href="#" class="list-group-item ">
+        <h4>di.fm Electro House</h4>
+        <p>
+          <button type="button" class="btn btn-lg"><span class="glyphicon glyphicon-play"></span> Play</button>
+        </p>
+      </a>
+      </div>-->
 
     <script type="text/javascript" src="js/private_urls.js"></script>
     <script type="text/javascript" src="js/gonzales.js"></script>
+    <script type="text/javascript" src="//code.jquery.com/jquery-2.0.3.min.js"></script>
+    <script type="text/javascript" src="//netdna.bootstrapcdn.com/bootstrap/3.0.3/js/bootstrap.min.js"></script>
   </body>
 </html>
