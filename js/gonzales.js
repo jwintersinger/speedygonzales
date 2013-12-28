@@ -122,14 +122,14 @@ function create_state_manager() {
   sm.set_start_state('1');
 
   for(var i = 2; i < 7; i++) {
-    sm.add_transition_prob(i.toString(), (i + 1).toString(), 0.8);
-    sm.add_transition_prob(i.toString(), (i - 1).toString(), 0.1);
+    sm.add_transition_prob(i.toString(), (i + 1).toString(), 0.85);
+    sm.add_transition_prob(i.toString(), (i - 1).toString(), 0.08);
   }
 
   for(var i = 1; i <= 10; i++) {
     sm.add_transition_prob(i.toString(), 'attack', 0.08);
   }
-  sm.add_transition_prob('attack', 'recover', 0.5);
+  sm.add_transition_prob('attack', 'recover', 0.35);
   sm.add_transition_prob('recover', '3', 0.5);
   sm.add_transition_prob('recover', '4', 0.5);
 
@@ -139,7 +139,7 @@ function create_state_manager() {
   sm.add_transition_prob('7', '9', 0.05);
   sm.add_transition_prob('8', '9', 0.1);
   sm.add_transition_prob('8', '7', 0.1);
-  sm.add_transition_prob('9', '4', 0.3);
+  sm.add_transition_prob('9', '5', 0.3);
   sm.add_transition_prob('10', '3', 0.5);
 
   return sm;
