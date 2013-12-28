@@ -1,7 +1,8 @@
 function StateManager() {
   this._states = {};
   this._current_state = null;
-  this._interval_period = 30000;
+  this._start_state = null;
+  this._interval_period = 15*1000;
 }
 
 StateManager.prototype.add_state = function(state_name, transition_sound) {
@@ -11,12 +12,16 @@ StateManager.prototype.add_state = function(state_name, transition_sound) {
   };
 };
 
+StateManager.prototype.set_start_state = function(state_name) {
+  this._start_state = state_name;
+}
+
 StateManager.prototype.add_transition_prob = function(from_state, to_state, transition_prob) {
   this._states[from_state].trans_probs[to_state] = transition_prob;
 };
 
-StateManager.prototype.start = function(start_state) {
-  this._switch_state(start_state);
+StateManager.prototype.start = function() {
+  this._switch_state(this._start_state);
 
   var self = this;
   this._interval_id = setInterval(function() {
@@ -26,6 +31,11 @@ StateManager.prototype.start = function(start_state) {
 
 StateManager.prototype.stop = function() {
   clearInterval(this._interval_id);
+}
+
+StateManager.prototype.restart = function() {
+  this.stop();
+  this.start();
 }
 
 StateManager.prototype._load_audio = function() {
@@ -80,6 +90,16 @@ StateManager.prototype._switch_state = function(new_state) {
   player.play();
 }
 
+StateManager.prototype.set_interval_period = function(new_period) {
+  this._interval_period = new_period * 1000;
+  this.restart();
+}
+
+StateManager.prototype.get_interval_period = function() {
+  return this._interval_period / 1000;
+}
+
+
 function create_state_manager() {
   var sm = new StateManager();
 
@@ -99,6 +119,7 @@ function create_state_manager() {
   sm.add_state('10', 'audio/count_10.mp3');
   sm.add_state('attack',  'audio/shot.mp3');
   sm.add_state('recover', 'audio/brake_screech.mp3');
+  sm.set_start_state('1');
 
   for(var i = 2; i < 7; i++) {
     sm.add_transition_prob(i.toString(), (i + 1).toString(), 0.8);
@@ -124,15 +145,29 @@ function create_state_manager() {
   return sm;
 }
 
+function fetch_int_value(elem) {
+  return parseInt(elem.value, 10);
+}
+
 function run() {
   var sm = create_state_manager();
+
   document.querySelector('#start').addEventListener('click', function() {
     document.querySelector('#transition_player').load();
     sm.start('1');
   });
+
   document.querySelector('#stop').addEventListener('click', function() {
     sm.stop();
   });
+
+  var period_selector = document.querySelector('#interval_period');
+  period_selector.value = sm.get_interval_period();
+  period_selector.addEventListener('change', function(evt) {
+    var new_period = fetch_int_value(evt.target);
+    sm.set_interval_period(new_period);
+  });
+
   document.querySelector('#music_player').src = PRIVATE_URLS.di_fm_electro_house;
 }
 
